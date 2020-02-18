@@ -90,8 +90,9 @@ Deploying this application on a new server should be fairly simple thanks to Doc
     $ # Go to the IP address available here
     $ docker-compose -f local.yml up
 
-6. Populate the databasew with the helper script.
-    TODO
+6. Populate/initialize the database with the helper script. Note that running this script will first delete all rows in all tables of the database.
+
+    $ docker-compose -f local.yml run --rm django python manage.py shell < food_reference_listing/database/archive_loader/initialize_database.py
 
 
 Docker
