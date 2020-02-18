@@ -226,6 +226,10 @@ def populate_product_table(data: list):
         fields = convert_row(header_mapping=header_mapping, row=row)
         fields['language'] = models.Language.objects.get(language_id=fields['language'])
         fields['company'] = models.Company.objects.get(company_id=fields['company'])
-        fields['subcategory'] = models.Subcategory.objects.get(subcategory_id=fields['subcategory'])
+
+        try:
+            fields['subcategory'] = models.Subcategory.objects.get(subcategory_id=fields['subcategory'])
+        except Exception as e:
+            fields['subcategory'] = None
         instance = models.Product.objects.create(**fields)
         instance.save()
