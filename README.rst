@@ -18,6 +18,7 @@ Notes
 
 Implemented with GCWeb 6.0: https://wet-boew.github.io/wet-boew/docs/versions/dwnld-en.html
 
+Built to replace: https://food-nutrition.canada.ca/food-safety/referencelist/index-en.php
 
 
 Settings
@@ -95,6 +96,17 @@ Deploying this application on a new server should be fairly simple thanks to Doc
 
 Docker
 ^^^^^^
+
+In order to connect to the database with a program like DBeaver, you'll need to know the IP address of the
+PostgreSQL container. To do this, first get the container ID by listing all containers on the server:
+
+`docker ps`
+
+Then, you can inspect individual containers with the inspect command:
+
+`docker inspect {container_id}`
+
+From here you can gather the IP address, as well as environment variables within the container.
 
 See detailed `cookiecutter-django Docker documentation`_.
 
