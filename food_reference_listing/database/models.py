@@ -99,9 +99,9 @@ class Product(models.Model):
     product_code = models.CharField(max_length=16, unique=True, blank=True, null=True)
     product_name_en = models.CharField(max_length=256, unique=False, blank=True, null=True)
     product_name_fr = models.CharField(max_length=256, unique=False, blank=True, null=True)
-    language = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True)
+    language = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True, blank=True)
     acceptance_date = models.DateTimeField()
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
-    subcategory = models.ForeignKey(Subcategory, on_delete=models.CASCADE)
+    subcategory = models.ForeignKey(Subcategory, on_delete=models.CASCADE, blank=True, null=True)
     updated = models.DateTimeField(blank=True, null=True)  # Historical record of previous DB
     history = HistoricalRecords()
