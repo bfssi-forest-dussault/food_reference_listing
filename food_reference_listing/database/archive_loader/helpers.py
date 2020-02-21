@@ -37,7 +37,10 @@ def convert_row(header_mapping: dict, row: csv.OrderedDict) -> dict:
         if val == "":
             val = None
         if header_mapping[key] == 'updated' or header_mapping[key] == 'acceptance_date':
-            val = make_aware(parser.parse(val))  # Update timezone
+            try:
+                val = make_aware(parser.parse(val))  # Update timezone
+            except Exception as e:
+                val = None
         new_row[header_mapping[key]] = val
     return new_row
 
@@ -51,9 +54,7 @@ def populate_language_table(data: list):
         'LastUpdate': 'updated',
     }
 
-    # Remove junk columns
     for row in data:
-        # acronym_row, created = models.Acronym.objects.get_or_create(acronym_id=row_['AcronymID'])
         fields = convert_row(header_mapping=header_mapping, row=row)
         instance = models.Language.objects.create(**fields)
         instance.save()
@@ -100,10 +101,10 @@ def populate_category_table(data: list):
     print("Populating Category table")
     header_mapping = {
         'CategoryID': 'category_id',
-        'HeaderE': 'header_en',  # Object
+        'HeaderE': 'header_en',
         'HeaderF': 'header_fr',
         'NoteE': 'note_en',
-        'NoteF': 'note_fr',  # Object
+        'NoteF': 'note_fr',
         'LastUpdate': 'updated'
     }
 
@@ -117,7 +118,7 @@ def populate_country_table(data: list):
     print("Populating Country table")
     header_mapping = {
         'CountryID': 'country_id',
-        'DescriptionE': 'description_en',  # Object
+        'DescriptionE': 'description_en',
         'DescriptionF': 'description_fr',
         'LastUpdate': 'updated'
     }
@@ -231,5 +232,12 @@ def populate_product_table(data: list):
             fields['subcategory'] = models.Subcategory.objects.get(subcategory_id=fields['subcategory'])
         except Exception as e:
             fields['subcategory'] = None
-        instance = models.Product.objects.create(**fields)
+
+        try:
+            instance = models.Product.objects.create(**fields)
+        except Exception as e:
+            x = models.Product.objects.get(product_code=fields['product_code'])
+            print(f'Integrity error; product already exists\n{x}. Replacing with new data: {row}')
+            x.delete()
+            instance = models.Product.objects.create(**fields)
         instance.save()

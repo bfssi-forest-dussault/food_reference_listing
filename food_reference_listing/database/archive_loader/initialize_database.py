@@ -3,8 +3,6 @@ import django
 from pathlib import Path
 
 # Need to do this in order to access the database models
-# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.local")
-
 sys.path.append("/app")
 django.setup()
 
@@ -14,7 +12,7 @@ from food_reference_listing.database.archive_loader.helpers import *
 """
 Script to load the archived data into the new database.
 
-Call it using  this command:
+Call it using this command:
 docker-compose -f local.yml run --rm django python manage.py shell < food_reference_listing/database/archive_loader/initialize_database.py
 """
 
