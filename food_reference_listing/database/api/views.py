@@ -6,4 +6,4 @@ from .serializers import ProductSerializer
 
 class ProductViewSet(ModelViewSet):
     serializer_class = ProductSerializer
-    queryset = Product.objects.select_related('language', 'company').all().order_by('-id')
+    queryset = Product.objects.select_related('language', 'company', 'subcategory').all().order_by('-id')

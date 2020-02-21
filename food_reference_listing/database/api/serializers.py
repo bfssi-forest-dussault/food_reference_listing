@@ -61,8 +61,11 @@ class ProductSerializer(serializers.ModelSerializer):
     )
     acceptance_date = serializers.DateTimeField()
     updated = serializers.DateTimeField()
-
-    # subcategory_id = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    subcategory = SubcategorySerializer()
+    # subcategory = serializers.CharField(
+    #     source='subcategory.topic_en',
+    #     read_only=True,
+    # )
 
     class Meta:
         model = Product
@@ -74,5 +77,5 @@ class ProductSerializer(serializers.ModelSerializer):
                   "updated",
                   "company",
                   "language",
-                  # "subcategory_id"
+                  "subcategory"
                   ]
