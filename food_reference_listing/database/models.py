@@ -20,10 +20,10 @@ class AcronymType(models.Model):
 
 class Acronym(models.Model):
     acronym_id = models.CharField(max_length=8, null=True, blank=True, unique=True)
-    language = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True)
+    language = models.ForeignKey(Language, related_name="acronyms", on_delete=models.SET_NULL, null=True)
     description_en = models.CharField(max_length=64, blank=True, null=True)
     description_fr = models.CharField(max_length=64, blank=True, null=True)
-    acronym_type = models.ForeignKey(AcronymType, on_delete=models.SET_NULL, null=True)
+    acronym_type = models.ForeignKey(AcronymType, related_name="acronyms", on_delete=models.SET_NULL, null=True)
     updated = models.DateTimeField()  # Historical record of previous DB
     history = HistoricalRecords()
 
@@ -51,7 +51,7 @@ class ProvinceState(models.Model):
     province_state_code = models.CharField(max_length=8, unique=True, null=True, blank=True)
     description_en = models.CharField(max_length=256, null=True, blank=True)
     description_fr = models.CharField(max_length=256, null=True, blank=True)
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    country = models.ForeignKey(Country, related_name="provincestates", on_delete=models.CASCADE)
     updated = models.DateTimeField()  # Historical record of previous DB
     history = HistoricalRecords()
 
@@ -61,7 +61,7 @@ class City(models.Model):
     description_en = models.CharField(max_length=256, null=True, blank=True)
     description_fr = models.CharField(max_length=256, null=True, blank=True)
     province_state = models.ForeignKey(ProvinceState, on_delete=models.SET_NULL, blank=True, null=True)
-    country = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True, blank=True)
+    country = models.ForeignKey(Country, related_name="cities", on_delete=models.SET_NULL, null=True, blank=True)
     updated = models.DateTimeField()  # Historical record of previous DB
     history = HistoricalRecords()
 
@@ -70,8 +70,8 @@ class Company(models.Model):
     company_id = models.CharField(max_length=16, unique=True, blank=True, null=True)
     name_en = models.CharField(max_length=256, blank=True, null=True)
     name_fr = models.CharField(max_length=256, blank=True, null=True)
-    language = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True)
-    city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True)
+    language = models.ForeignKey(Language, related_name="companies", on_delete=models.SET_NULL, null=True)
+    city = models.ForeignKey(City, related_name="companies", on_delete=models.SET_NULL, null=True)
     postal_code = models.CharField(max_length=16, blank=True, null=True)
     updated = models.DateTimeField()  # Historical record of previous DB
     history = HistoricalRecords()
@@ -86,9 +86,12 @@ class Subcategory(models.Model):
     long_topic_fr = models.TextField(null=True, blank=True)
     condition_use_en = models.TextField(null=True, blank=True)
     condition_use_fr = models.TextField(null=True, blank=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, related_name="subcategories", on_delete=models.CASCADE)
     updated = models.DateTimeField()  # Historical record of previous DB
     history = HistoricalRecords()
+
+    def __str__(self):
+        print(f'{self.subcategory_code}')
 
 
 class Product(models.Model):
@@ -100,8 +103,9 @@ class Product(models.Model):
     product_name_en = models.CharField(max_length=256, unique=False, blank=True, null=True)
     product_name_fr = models.CharField(max_length=256, unique=False, blank=True, null=True)
     language = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True, blank=True)
-    acceptance_date = models.DateTimeField()
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
-    subcategory = models.ForeignKey(Subcategory, on_delete=models.CASCADE, blank=True, null=True)
+    acceptance_date = models.DateTimeField(blank=True, null=True)
+    company = models.ForeignKey(Company, related_name="products", on_delete=models.CASCADE)
+    subcategory = models.ForeignKey(Subcategory, related_name="products", on_delete=models.CASCADE, blank=True,
+                                    null=True)
     updated = models.DateTimeField(blank=True, null=True)  # Historical record of previous DB
     history = HistoricalRecords()
