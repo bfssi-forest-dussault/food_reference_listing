@@ -1,0 +1,216 @@
+{% extends 'base-en.html' %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-md-3">
+      <h4 class="wb-inv">Filtering Options</h4>
+      <details open="">
+        <summary><h4 class="h4">Filter Options</h4></summary>
+        <p class="mrgn-tp-md">Use filters to below to change the focus of your results in the table</p>
+        <form class="wb-tables-filter" data-bind-to="dataset-filter">
+          <div class="form-group">
+            <label for="categorySearch">Category</label>
+            <select class="form-control" id="categorySearch" name="categorySearch" style="width: 100%">
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="subcategorySearch">Subcategory</label>
+            <select class="form-control" id="subcategorySearch" name="subcategorySearch" style="width: 100%">
+            </select>
+          </div>
+
+          <div class="form-group">
+            <button type="submit" class="btn btn-primary" id="filterButton" aria-controls="dataset-filter">Filter
+            </button>
+          </div>
+
+        </form>
+      </details>
+    </div>
+
+    <div class="col-md-9">
+      <div id="productTableContainer"></div>
+{#      <caption class="wb-inv"><i>*Notes#}
+{#      </i>#}
+{#      </caption>#}
+    </div>
+    <br>
+  </div>
+
+  <div class="row">
+    <hr>
+    <section class="cnt-wdth-lmtd">
+      <p> Any inquiries related to the current assessment of food packaging materials and food processing aids should be
+        directed to:<br><br>
+        Food Packaging Materials & Incidental Additives Section<br>
+        Chemical Health Hazard Assessment Division<br>
+        Bureau of Chemical Safety<br>
+        Health Canada<br>
+        251 Sir Frederick Banting Driveway<br>
+        Ottawa, Ontario, K1A 0K9<br>
+        <br>
+        <strong>Email:</strong> <a href="mailto:">FPMIA-MEAAI@hc-sc.gc.ca</a> <span
+                class="glyphicon glyphicon-envelope"></span></p>
+      <br>
+    </section>
+  </div>
+
+{% endblock content %}
+{% block javascript %}
+
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+
+  <script>
+      $(document).ready(function () {
+          // Initialize table with no category or subcategory filtering
+          populateTable('', '')
+
+          // Get the select2 category and subcategory elements initialized
+          configureSelect()
+      })
+
+      function populateTable(category, subcategory) {
+
+          // Get rid of the old table
+          $('#productTableContainer').empty()
+
+          // Template for the table element
+          const tableMarkup = (category, subcategory) => `
+                <table class="wb-tables wb-tables-filter table table-condensed table-hover" id="productTable"
+                 data-wb-tables='{
+                  "serverSide": true,
+                  "processing": true,
+                  "paging": true,
+                  "scrollY": "400px",
+                  "searching": true,
+                  "destroy": true,
+                  "ajax": "/api/products/?format=datatables&category=${category}&subcategory=${subcategory}",
+                      "columns": [
+                          {"data": "company.name_en"},
+                          {"data": "product_name_en"},
+                          {"data": "subcategory.category.header_en", "defaultContent": ""},
+                          {"data": "subcategory.topic_en", "defaultContent": ""},
+                          {"data": "acceptance_date"}
+                      ]
+              }'>
+            <thead>
+            <tr class="datatable-headers">
+              <th>Company Name</th>
+              <th>Product Name</th>
+              <th>Category</th>
+              <th>Subcategory</th>
+              <th>Acceptance Date</th>
+            </tr>
+            </thead>
+            <tbody class="datatable-body">
+            <tr>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            </tbody>
+          </table>
+          `
+
+          // Use the table template with selected category, subcategory options
+          $(tableMarkup(category, subcategory)).appendTo('#productTableContainer')
+          $(".wb-tables").trigger("wb-init.wb-tables");
+      }
+
+
+      // Configure select2
+      function configureSelect() {
+          let subcategorySearchSelect = $('#subcategorySearch').select2()
+          let categorySearchSelect = $('#categorySearch')
+          categorySearchSelect.select2(
+              {
+                  placeholder: '',
+                  allowClear: true,
+                  cache: true,
+                  tags: false,
+                  {#minimumInputLength: 3,#}
+                  ajax: {
+                      url: '/api/category_names/',
+                      data: function (params) {
+                          // Query parameters will be ?search=[term]
+                          return {
+                              page: params.page || 1,
+                              search: params.term || ""
+                          };
+                      },
+                      processResults: function (data, params) {
+                          let page = params.page || 1;
+                          {#console.log(data.results);#}
+                          // Transforms the top-level key of the response object from 'items' to 'results'
+                          return {
+                              results: data.results,
+                              pagination: {
+                                  more: (page * 25) <= data.count  // multiple by page size of API response
+                              }
+                          };
+                      }
+                  }
+              }
+          );
+
+
+          // Filter results displayed in main table depending on category/subcategory selection
+          $('#filterButton').on('click', function () {
+              console.log('Alas, I have been clicked')
+              let subcategory = $('#subcategorySearch option:selected').text();
+              let category = $('#categorySearch option:selected').text();
+              populateTable(category, subcategory)
+          })
+
+          // When the user changes the category, auto-update the available subcategories
+          categorySearchSelect.on('select2:select', function (e) {
+              let data = e.params.data;
+              let category = data.text
+              let subcategorySearchSelect = $('#subcategorySearch')
+
+              // Clear out previous results
+              subcategorySearchSelect.select2("val", "")
+
+              // Configure subcategory results
+              subcategorySearchSelect.select2(
+                  {
+                      placeholder: '',
+                      allowClear: true,
+                      cache: true,
+                      tags: false,
+                      search: false,
+                      ajax: {
+                          url: `/api/subcategory_names/?category=${category}`,
+                          data: function (params) {
+                              // Query parameters will be ?search=[term]
+                              return {
+                                  page: params.page || 1,
+                                  search: params.term || ""
+                              };
+                          },
+                          processResults: function (data, params) {
+                              let page = params.page || 1;
+                              console.log(data.results);
+                              return {
+                                  // Transforms object to format expected by select2
+                                  results: data.results.map(obj => ({
+                                      'id': obj['id'],
+                                      'text': obj['topic_en']
+                                  })),
+                                  pagination: {
+                                      more: (page * 25) <= data.count  // multiple by page size of API response
+                                  }
+                              };
+                          }
+                      }
+                  }
+              );
+          })
+      }
+
+
+  </script>
+{% endblock javascript %}
