@@ -9,6 +9,12 @@ class Language(models.Model):
     updated = models.DateTimeField()  # Historical record of previous DB
     history = HistoricalRecords()
 
+    def __str__(self):
+        try:
+            return f'{self.language_id}: {self.description_en}'
+        except TypeError as e:
+            return ''
+
 
 class AcronymType(models.Model):
     acronym_type_id = models.CharField(max_length=16, null=True, blank=True, unique=True)
@@ -36,6 +42,16 @@ class Category(models.Model):
     note_fr = models.TextField(blank=True, null=True)
     updated = models.DateTimeField()  # Historical record of previous DB
     history = HistoricalRecords()
+
+    def __str__(self):
+        try:
+            return f'{self.category_id}: {self.header_en}'
+        except TypeError as e:
+            return ''
+
+    class Meta:
+        verbose_name = 'Category'
+        verbose_name_plural = 'Categories'
 
 
 class Country(models.Model):
@@ -76,6 +92,16 @@ class Company(models.Model):
     updated = models.DateTimeField()  # Historical record of previous DB
     history = HistoricalRecords()
 
+    def __str__(self):
+        try:
+            return f'{self.company_id}: {self.name_en}'
+        except TypeError as e:
+            return ''
+
+    class Meta:
+        verbose_name = 'Company'
+        verbose_name_plural = 'Companies'
+
 
 class Subcategory(models.Model):
     subcategory_id = models.IntegerField(null=True, blank=True, unique=True)
@@ -91,7 +117,14 @@ class Subcategory(models.Model):
     history = HistoricalRecords()
 
     def __str__(self):
-        print(f'{self.subcategory_code}')
+        try:
+            return f'{self.subcategory_code}: {self.topic_en}'
+        except TypeError as e:
+            return ''
+
+    class Meta:
+        verbose_name = 'Subcategory'
+        verbose_name_plural = 'Subcategories'
 
 
 class Product(models.Model):
@@ -109,3 +142,17 @@ class Product(models.Model):
                                     null=True)
     updated = models.DateTimeField(blank=True, null=True)  # Historical record of previous DB
     history = HistoricalRecords()
+
+    @property
+    def acceptance_date_pretty(self):
+        return f'{self.acceptance_date.strftime("%Y-%m-%d")}'
+
+    def __str__(self):
+        try:
+            return f'{self.product_code}: {self.product_name_en}'
+        except TypeError as e:
+            return ''
+
+    class Meta:
+        verbose_name = 'Product'
+        verbose_name_plural = 'Products'

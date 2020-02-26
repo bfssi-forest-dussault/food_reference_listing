@@ -8,6 +8,9 @@
       <details open="">
         <summary><h4 class="h4">Filter Options</h4></summary>
         <p class="mrgn-tp-md">Use filters to below to change the focus of your results in the table</p>
+
+        <hr>
+
         <form class="wb-tables-filter" data-bind-to="dataset-filter">
           <div class="form-group">
             <label for="categorySearch">Category</label>
@@ -20,6 +23,16 @@
             </select>
           </div>
 
+          <hr>
+
+          <div class="form-group">
+            <label for="companySearch">Company</label>
+            <select class="form-control" id="companySearch" name="companySearch" style="width: 100%">
+            </select>
+          </div>
+
+          <hr>
+
           <div class="form-group">
             <button type="submit" class="btn btn-primary" id="filterButton" aria-controls="dataset-filter">Filter
             </button>
@@ -31,9 +44,9 @@
 
     <div class="col-md-9">
       <div id="productTableContainer"></div>
-{#      <caption class="wb-inv"><i>*Notes#}
-{#      </i>#}
-{#      </caption>#}
+        {#      <caption class="wb-inv"><i>*Notes#}
+        {#      </i>#}
+        {#      </caption>#}
     </div>
     <br>
   </div>
@@ -52,7 +65,37 @@
         <br>
         <strong>Email:</strong> <a href="mailto:">FPMIA-MEAAI@hc-sc.gc.ca</a> <span
                 class="glyphicon glyphicon-envelope"></span></p>
-      <br>
+    </section>
+  </div>
+
+  <div class="row">
+    <section class="cnt-wdth-lmtd">
+      <h2>Guidelines on how to search the Reference Listing</h2>
+      <p>This database is organized into entries by <strong>category</strong>. Each category is identified by the usage
+        of
+        its products (e.g. cleaners, lubricants, containers, etc.). Each category is then divided into <strong>sub-categories</strong>
+        which break down specific accepted usages for products (e.g. hand cleaners, lubricant with incidental food
+        contact, container for non-food contact, etc.). </p>
+      <h4>Search by Category</h4>
+      <p><strong>Step 1:</strong> Select a category from the drop-down list of reference categories.</p>
+      <p><i>Note: If you would like a list of all products for all categories in the database, please select “select
+        all”
+        and use the “Next” button, which is below the table, to see the following pages. Please note that selecting all
+        categories will generate a report containing all entries.</i></p>
+      <p><strong>Step 2:</strong> Select a <strong>sub-category</strong> from the drop-down list of sub-categories.
+        Please
+        note that choices for sub-categories are dependent upon your first selection of category and therefore will vary
+        between categories.</p>
+      <p><i>Note: If you wish to view all products in your category, you need to “select all” under sub-category.</i>
+      </p>
+      <p><strong>Step 3:</strong> The database will produce a report of the requested material and this will appear on
+        your screen once completed. The report lists the product names and includes the company name and the date of
+        acceptance of each product.</p>
+      <p><strong>Step 4:</strong> If you click on a company name, you can view a list of all products in database from
+        that specific company. The report includes the product name and acceptance date, as well as each category and
+        sub-category in which the product is classified.</p>
+      <p>At any time, you can begin a new search again by clicking select a category in the drop-down list. This will
+        refresh your search. </p>
     </section>
   </div>
 
@@ -63,20 +106,21 @@
 
   <script>
       $(document).ready(function () {
-          // Initialize table with no category or subcategory filtering
-          populateTable('', '')
+          // Initialize table with no filtering
+          populateTable('', '', '')
 
           // Get the select2 category and subcategory elements initialized
           configureSelect()
       })
 
-      function populateTable(category, subcategory) {
+      function populateTable(category, subcategory, company) {
 
           // Get rid of the old table
           $('#productTableContainer').empty()
 
           // Template for the table element
-          const tableMarkup = (category, subcategory) => `
+          // TODO: Maybe implement sorting/searching for dates instead of just disabling it. Bug because it's a property field.
+          const tableMarkup = (category, subcategory, company) => `
                 <table class="wb-tables wb-tables-filter table table-condensed table-hover" id="productTable"
                  data-wb-tables='{
                   "serverSide": true,
@@ -85,13 +129,17 @@
                   "scrollY": "400px",
                   "searching": true,
                   "destroy": true,
-                  "ajax": "/api/products/?format=datatables&category=${category}&subcategory=${subcategory}",
+                  "columnDefs": [
+                    { "orderable": false, "targets": 4},
+                    { "bSearchable": false, "aTargets": [ 4 ] }
+                  ],
+                  "ajax": "/api/products/?format=datatables&category=${category}&subcategory=${subcategory}&company=${company}",
                       "columns": [
                           {"data": "company.name_en"},
                           {"data": "product_name_en"},
                           {"data": "subcategory.category.header_en", "defaultContent": ""},
                           {"data": "subcategory.topic_en", "defaultContent": ""},
-                          {"data": "acceptance_date"}
+                          {"data": "acceptance_date_pretty", "defaultContent": ""}
                       ]
               }'>
             <thead>
@@ -116,15 +164,16 @@
           `
 
           // Use the table template with selected category, subcategory options
-          $(tableMarkup(category, subcategory)).appendTo('#productTableContainer')
+          $(tableMarkup(category, subcategory, company)).appendTo('#productTableContainer')
           $(".wb-tables").trigger("wb-init.wb-tables");
       }
-
 
       // Configure select2
       function configureSelect() {
           let subcategorySearchSelect = $('#subcategorySearch').select2()
           let categorySearchSelect = $('#categorySearch')
+          let companySearchSelect = $('#companySearch')
+
           categorySearchSelect.select2(
               {
                   placeholder: '',
@@ -148,7 +197,37 @@
                           return {
                               results: data.results,
                               pagination: {
-                                  more: (page * 25) <= data.count  // multiple by page size of API response
+                                  more: (page * 25) <= data.count  // multiply by page size of API response
+                              }
+                          };
+                      }
+                  }
+              }
+          );
+
+          companySearchSelect.select2(
+              {
+                  placeholder: '',
+                  allowClear: true,
+                  cache: true,
+                  tags: false,
+                  {#minimumInputLength: 3,#}
+                  ajax: {
+                      url: '/api/company_names/',
+                      data: function (params) {
+                          // Query parameters will be ?search=[term]
+                          return {
+                              page: params.page || 1,
+                              search: params.term || ""
+                          };
+                      },
+                      processResults: function (data, params) {
+                          let page = params.page || 1;
+                          // Transforms the top-level key of the response object from 'items' to 'results'
+                          return {
+                              results: data.results,
+                              pagination: {
+                                  more: (page * 25) <= data.count  // multiply by page size of API response
                               }
                           };
                       }
@@ -162,7 +241,8 @@
               console.log('Alas, I have been clicked')
               let subcategory = $('#subcategorySearch option:selected').text();
               let category = $('#categorySearch option:selected').text();
-              populateTable(category, subcategory)
+              let company = $('#companySearch option:selected').text();
+              populateTable(category, subcategory, company)
           })
 
           // When the user changes the category, auto-update the available subcategories
@@ -210,7 +290,6 @@
               );
           })
       }
-
 
   </script>
 {% endblock javascript %}
