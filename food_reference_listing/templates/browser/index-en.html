@@ -44,7 +44,8 @@
     </div>
 
     <div class="col-md-9">
-      <div id="productTableContainer"></div>
+      <div id="productTableContainer">
+      </div>
         {#      <caption class="wb-inv"><i>*Notes#}
         {#      </i>#}
         {#      </caption>#}
@@ -116,8 +117,11 @@
 
       function populateTable(category, subcategory, company) {
 
-          // Get rid of the old table
-          $('#productTableContainer').empty()
+          // Empty the contents of the container if there's a table in it already
+          if ($('#productTable').length) {
+              $('#productTableContainer').empty();
+              $('object').remove();  // Prevent the WET DataTables plugin from being duplicated on Filter
+          }
 
           // Template for the table element
           // TODO: Maybe implement sorting/searching for dates instead of just disabling it. Bug because it's a property field.
@@ -126,10 +130,11 @@
                  data-wb-tables='{
                   "serverSide": true,
                   "processing": true,
+                  "destroy": true,
+                  "caching": true,
                   "paging": true,
                   "scrollY": "490px",
                   "searching": true,
-                  "destroy": true,
                   "columnDefs": [
                     { "orderable": false, "targets": 4},
                     { "bSearchable": false, "aTargets": [ 4 ] }
