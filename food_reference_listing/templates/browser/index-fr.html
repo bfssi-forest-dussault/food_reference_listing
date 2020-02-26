@@ -1,1 +1,38 @@
 {% extends 'base-fr.html' %}
+
+{% block content %}
+  <div class="row">
+    <section class="cnt-wdth-lmtd">
+      <h2>Lignes directrices pour effectuer des recherches dans la liste de référence</h2>
+      <p>Les entrées de cette base de données sont classées par <strong>catégorie</strong>. Chaque catégorie est
+        identifiée par la fonction des produits qu’elle contient (p. ex., nettoyants, lubrifiants, contenants, etc.).
+        Chaque catégorie est ensuite divisée en <strong>sous-catégories</strong> en fonction des utilisations
+        spécifiques acceptées pour les produits (p. ex., nettoyants pour les mains, lubrifiants avec contact occasionnel
+        avec les aliments, contenants non conçus pour le contact avec les aliments, etc.). </p>
+
+      <h4>Recherche par catégorie</h4>
+      <p><strong>Étape 1:</strong>Sélectionnez une <strong>catégorie</strong> dans la liste déroulante des catégories de
+        référence.</p>
+      <p><i>Remarque : Si vous souhaitez obtenir une liste de tous les produits pour toutes les catégories de la base de
+        données, veuillez choisir « <strong>Tout sélectionner</strong> » et cliquer sur le bouton « Suivant » situé sous
+        le tableau pour voir les pages suivantes. Veuillez noter que le fait de choisir toutes les catégories produira
+        un rapport contenant toutes les entrées. </i></p>
+      <p><strong>Étape 2:</strong> Sélectionnez une <strong>sous-catégorie</strong> dans la liste déroulante des
+        sous-catégories. Veuillez noter que le choix de sous-catégories dépend de votre premier choix de catégorie et
+        varie donc selon les catégories.</p>
+      <p><i>Remarque : Si vous souhaitez voir tous les produits de votre catégorie, vous devez choisir « Tout
+        sélectionner » dans la sous-catégorie.</i>
+      </p>
+      <p><strong>Étape 3:</strong> La base de données produira un rapport des informations demandées et celui-ci
+        apparaîtra sur votre écran une fois la requête terminée. Ce rapport répertorie les noms de produits et comprend
+        le nom de l’entreprise et la date d’acceptation de chaque produit. </p>
+      <p><strong>Étape 4:</strong> Si vous cliquez sur le nom d’une entreprise, vous pouvez afficher une liste de tous
+        les produits de cette entreprise particulière que contient la base de données. Le rapport comprend le nom du
+        produit et sa date d’acceptation, ainsi que chacune des catégories et sous-catégories dans lesquelles le produit
+        est classé. </p>
+      <p>À tout moment, vous pouvez faire une nouvelle recherche en cliquant sur « Sélectionner une catégorie » dans la
+        liste déroulante. Cela rafraîchira votre recherche. </p>
+    </section>
+  </div>
+
+{% endblock content %}
