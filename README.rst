@@ -29,8 +29,8 @@ Moved to settings_.
 .. _settings: http://cookiecutter-django.readthedocs.io/en/latest/settings.html
 
 
-Deployment
-----------
+Deployment Setup
+----------------
 
 Deploying this application on a new server should be fairly simple thanks to Docker.
 
@@ -63,7 +63,7 @@ Deploying this application on a new server should be fairly simple thanks to Doc
     $ # Restart service
     $ sudo systemctl restart docker
 
-2. Then, build the image with this command
+2. Then, build the local image with this command
 
 .. code-block::
 
@@ -83,7 +83,7 @@ Deploying this application on a new server should be fairly simple thanks to Doc
     $ docker-compose -f local.yml run --rm django python manage.py migrate
     $ docker-compose -f local.yml run --rm django python manage.py createsuperuser
 
-5. Test to see if the server works. You should be able to log in with the superuser account you just made.
+5. Test to see if the local dev server works. You should be able to log in with the superuser account you just made.
 
 .. code-block::
 
@@ -93,6 +93,13 @@ Deploying this application on a new server should be fairly simple thanks to Doc
 6. Populate/initialize the database with the helper script. Note that running this script will first delete all rows in all tables of the database.
 
     $ docker-compose -f local.yml run --rm django python manage.py shell < food_reference_listing/database/archive_loader/initialize_database.py
+
+
+Production Deployment
+---------------------
+TBD. Refer to https://cookiecutter-django.readthedocs.io/en/latest/deployment-with-docker.html
+
+Production configuration is available within `production.yml`
 
 
 Docker
@@ -112,38 +119,4 @@ From here you can gather the IP address, as well as environment variables within
 See detailed `cookiecutter-django Docker documentation`_.
 
 .. _`cookiecutter-django Docker documentation`: http://cookiecutter-django.readthedocs.io/en/latest/deployment-with-docker.html
-
-
-
-Type checks
-^^^^^^^^^^^
-
-Running type checks with mypy:
-
-::
-
-  $ mypy food_reference_listing
-
-Test coverage
-^^^^^^^^^^^^^
-
-To run the tests, check your test coverage, and generate an HTML coverage report::
-
-    $ coverage run -m pytest
-    $ coverage html
-    $ open htmlcov/index.html
-
-Running tests with py.test
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-  $ pytest
-
-Live reloading and Sass CSS compilation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Moved to `Live reloading and SASS compilation`_.
-
-.. _`Live reloading and SASS compilation`: http://cookiecutter-django.readthedocs.io/en/latest/live-reloading-and-sass-compilation.html
 
