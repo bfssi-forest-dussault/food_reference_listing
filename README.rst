@@ -108,11 +108,11 @@ Docker
 In order to connect to the database with a program like DBeaver, you'll need to know the IP address of the
 PostgreSQL container. To do this, first get the container ID by listing all containers on the server:
 
-`docker ps`
+    `docker ps`
 
 Then, you can inspect individual containers with the inspect command:
 
-`docker inspect {container_id}`
+    `docker inspect {container_id}`
 
 From here you can gather the IP address, as well as environment variables within the container.
 
